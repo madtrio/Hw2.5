@@ -15,8 +15,9 @@ public class EmployeeService {
         int indexForAdding = -1;
         Employee employee = new Employee(firstName,lastName);
         for (int i = 0; i < employees.length; i++) {
-            if (employees[i] == null && indexForAdding == -1) {
-                indexForAdding = i;
+            if (employees[i] == null) {
+                if (indexForAdding == -1) {
+                indexForAdding = i;}
                 continue;
             }
             if (employees[i].equals(employee)){

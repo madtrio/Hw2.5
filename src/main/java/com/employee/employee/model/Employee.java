@@ -1,30 +1,34 @@
 package com.employee.employee.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.Objects;
 
 public class Employee {
 
-
-    private final String lastName;
+    @JsonProperty("firstName")
     private final String firstName;
+    @JsonProperty("lastName")
+    private final String lastName;
 
 
-    public Employee(String lastName,
-                    String firstName
+
+    public Employee(String firstName ,
+                    String lastName
                     ) {
-
-        this.lastName = lastName;
         this.firstName = firstName;
+        this.lastName = lastName;
+
 
     }
-
+    public String getFirstName() {
+        return firstName;
+    }
     public String getLastName() {
         return lastName;
     }
 
-    public String getFirstName() {
-        return firstName;
-    }
+
 
     @Override
     public boolean equals (Object o){
@@ -40,15 +44,15 @@ return firstName.equals(employee.firstName) && lastName.equals(employee.lastName
 
     @Override
     public int hashCode() {
-        return Objects.hash(lastName, firstName);
+        return Objects.hash(firstName, lastName);
     }
 
     @Override
     public String toString() {
         return String.format(
                 "ФИО: %s %s",
-                lastName,
-                firstName
+                firstName,
+                lastName
                 );
     }
 }
