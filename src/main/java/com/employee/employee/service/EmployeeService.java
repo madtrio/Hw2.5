@@ -6,48 +6,63 @@ import com.employee.employee.exception.EmployeeStorageIsFullException;
 import org.springframework.stereotype.Service;
 import com.employee.employee.model.Employee;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Service
 public class EmployeeService {
-    private static final int SIZE = 3;
-    private final Employee[] employees = new Employee[SIZE];
 
-    public Employee add(String firstName, String lastName) {
-        int indexForAdding = -1;
-        Employee employee = new Employee(firstName,lastName);
-        for (int i = 0; i < employees.length; i++) {
-            if (employees[i] == null) {
-                if (indexForAdding == -1) {
-                indexForAdding = i;}
-                continue;
-            }
-            if (employees[i].equals(employee)){
-                throw new EmployeeAlreadyAddedException();
-            }
-        }
-        if (indexForAdding == -1) {
-            throw new EmployeeStorageIsFullException();
-        }
+    private static final int LIMIT = 10;
 
-        employees[indexForAdding] = employee;
-        return employees[indexForAdding];
+    private final List<Employee> employees = new ArrayList<>();
+
+    private final ValidatorService validatorService;
+
+    public EmployeeService(ValidatorService validatorService) {
+        this.validatorService = validatorService;
     }
-    public Employee find(String firstName, String lastName){
-        Employee employee = new Employee(firstName,lastName);
-        for (Employee emp : employees) {
-            if (employee.equals(emp)) {
-                return employee;
-            }
+
+    public Employee add(String name,
+                        String surname,
+                        int department,
+                        double salary) {
+        Employee employee = new Employee(
+                validatorService.validateName(name),
+                validatorService.validateSurname(surname),
+                department,
+                salary
+        );
+        if (employees.contains(employee)) {
+            throw new EmployeeAlreadyAddedException();
         }
-        throw new EmployeeNotFoundException();
-    }
-    public Employee remove(String firstName, String lastName){
-        Employee employee = new Employee(firstName,lastName);
-        for (int i = 0; i < employees.length; i++) {
-            if (employee.equals(employees[i])) {
-                employees[i] = null;
-                return employee;
-            }
+        if (employees.size() < LIMIT) {
+            employees.add(employee);
+            return employee;
         }
-        throw new EmployeeNotFoundException();
+        throw new EmployeeStorageIsFullException();
     }
+
+    public Employee remove(String name,
+                           String surname) {
+        Employee employee = employees.stream()
+                .filter(emp -> emp.getName().equals(name) && emp.getSurname().equals(surname))
+                .findFirst()
+                .orElseThrow(EmployeeNotFoundException::new);
+        employees.remove(employee);
+        return employee;
+    }
+
+    public Employee find(String name,
+                         String surname) {
+        return employees.stream()
+                .filter(employee -> employee.getName().equals(name) && employee.getSurname().equals(surname))
+                .findFirst()
+                .orElseThrow(EmployeeNotFoundException::new);
+    }
+
+    public List<Employee> getAll() {
+        return new ArrayList<>(employees);
+    }
+
 }
+
